@@ -186,11 +186,15 @@ class ymcLongLiveBatchRunner
     {
         while( true )
         {
-            $timeToSleep = $minEndTime - time();
+            $timeToSleep = $this->minEndTime - time();
             if( $timeToSleep <= 0 )
             {
                 return;
             }
+            self::log( sprintf( '%s: sleeping %d seconds to reach minExecutionTime of %d seconds',
+                                $this->callbackString,
+                                $timeToSleep,
+                                $this->options->minExecutionTime ), ezcLog::DEBUG );
             sleep( $timeToSleep );
         }
     }
