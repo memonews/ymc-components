@@ -1,3 +1,10 @@
+ymc-components (20101125) memo; urgency=low
+
+  * Added minExecutionTime option to batchRunner
+  * Some refactoring in batchRunner
+
+ -- Thomas Koch <thomas.koch@ymc.ch>  Thu, 25 Nov 2010 15:38:31 +0100
+
 ymc-components (20100706) memo; urgency=low
 
   * JobQueue: Timed job execution

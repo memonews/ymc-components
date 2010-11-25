@@ -13,6 +13,7 @@ class ymcLongLiveBatchRunnerOptions extends ezcBaseOptions
         'arguments'           => array(),
         'sleep'               => 0,
         'maxExecutionTime'    => 0,
+        'minExecutionTime'    => 0,
         'memoryLimit'         => 0,
         'relativeMemoryLimit' => 0.2,
         'gracefulSigterm'     => TRUE,
@@ -41,6 +42,7 @@ class ymcLongLiveBatchRunnerOptions extends ezcBaseOptions
         {
             case 'sleep':
             case 'maxExecutionTime':
+            case 'minExecutionTime':
             case 'memoryLimit':
             case 'freeSystemMemory':
                 if( !is_int( $value ) )

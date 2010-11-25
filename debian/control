@@ -1,7 +1,7 @@
 Source: ymc-components
 Section: web
 Priority: optional
-Build-Depends: debhelper (>= 7.0.15), cdbs
+Build-Depends: debhelper (>= 7.0.15)
 Maintainer: Thomas Koch <thomas.koch@ymc.ch>
 Standards-Version: 3.8.3
 
