@@ -58,7 +58,7 @@ class ymcI18nDateFormatSymbols
         $daysShort = array();
 
         $formatter = new IntlDateFormatter( $this->localeString, IntlDateFormatter::FULL,
-               IntlDateFormatter::FULL, 'GMT', IntlDateFormatter::GREGORIAN, 'eeeee@eee@eeee' );
+               IntlDateFormatter::FULL, 'GMT', IntlDateFormatter::GREGORIAN, 'EEEEE@EEE@EEEE' );
 
         // start date must be sunday so that sunday will be the first element in the array
         $date = new DateTime( '1970-01-04', new DateTimeZone( 'GMT' ) );
