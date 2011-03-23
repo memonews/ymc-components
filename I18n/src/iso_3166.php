@@ -2,17 +2,19 @@
 
 class ymcI18nIso3166
 {
-    const XMLPATH = '/usr/share/xml/iso-codes/iso_3166.xml';
+    const DEFAULT_XMLPATH = '/usr/share/xml/iso-codes/iso_3166.xml';
     const DOMAIN = 'iso_3166';
 
     private static $countries;
 
+    private $xmlPath;
     private $locale;
 
     private $doNotTranslate = FALSE;
 
-    public function __construct( ymcI18nSystemLocale $locale )
+    public function __construct( ymcI18nSystemLocale $locale, $xmlPath = null )
     {
+        $this->xmlPath = ( null === $xmlPath ) ? self::DEFAULT_XMLPATH : $xmlPath;
         $this->locale = $locale;
         if( !$locale->systemLocale )
         {
@@ -76,7 +78,7 @@ class ymcI18nIso3166
     private function initCountries()
     {
         $reader = new XMLReader();
-        $reader->open( self::XMLPATH );
+        $reader->open( $this->xmlPath );
 
         $countries = array();
 
