@@ -110,7 +110,7 @@ class ymcHtmlFormGeneric implements ymcHtmlForm, ArrayAccess
         throw new Exception;
     }
     public function offsetExists($offset) {
-        throw new Exception;
+        return array_key_exists( $offset, $this->elements );
     }
     public function offsetUnset($offset) {
         throw new Exception;
