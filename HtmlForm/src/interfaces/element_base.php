@@ -134,16 +134,20 @@ abstract class ymcHtmlFormElementBase implements ymcHtmlFormElement
                                     $options->filterOptions );
 
         $this->unsafeRawValue = $inputSource->getUnsafeRaw( $this->name );
+        $rawValue = trim( $this->unsafeRawValue );
         
         $valid = FALSE !== $value;
-
-        if( !$valid )
+        
+        if( empty( $rawValue ) )
+        {
+            if( $emptyFailure )
+            {
+                $this->failures[] = new $emptyFailure( $this );
+            }
+        }
+        elseif( !$valid )
         {
             $this->failures[] = new $options->filterFailure( $this );
-        }
-        elseif( $emptyFailure && empty( $value ) )
-        {
-            $this->failures[] = new $emptyFailure( $this );
         }
         return $value;
     }
