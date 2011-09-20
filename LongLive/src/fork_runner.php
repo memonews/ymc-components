@@ -35,7 +35,7 @@ class ymcLongLiveForkRunner
     *
     * @var integer
     */
-    protected $port = 5678;
+    protected $statusPort = 5678;
 
     public function __construct($statusPort=null)
     {
