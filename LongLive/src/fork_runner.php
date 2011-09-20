@@ -24,6 +24,13 @@ class ymcLongLiveForkRunner
     protected $respawn = TRUE;
 
     /**
+     * After this moment, all children will receive a sigkill
+     * 
+     * @var DateTime
+     */
+    protected $scheduledSigkill = NULL;
+
+    /**
     * Port to listen for status requests.
     *
     * @var integer
@@ -90,6 +97,12 @@ class ymcLongLiveForkRunner
                 $this->children[$pid] = $fork;
             }
         }
+    }
+
+    public function shutdown( $signal )
+    {
+        $this->propagateSignal( SIGTERM );
+        $this->scheduledSigkill = new DateTime( '+2 minutes' );
     }
 
     /**
@@ -197,6 +210,10 @@ class ymcLongLiveForkRunner
             if( is_callable( $ticker ) )
             {
                 call_user_func( $ticker );
+            }
+            if( $this->scheduledSigkill instanceof DateTime && ( int )$this->scheduledSigkill->format( 'U' ) < time() )
+            {
+                $this->propagateSignal( SIGKILL );
             }
 
             self::log( sprintf( 'fork runner supervise loop took %d seconds.', time() - $start ), ezcLog::DEBUG );
