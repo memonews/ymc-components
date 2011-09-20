@@ -87,6 +87,12 @@ class ymcLongLiveForkRunner
                 {
                     sleep( $snooze );
                 }
+
+                if( function_exists( 'setproctitle' ) )
+                {
+                    setproctitle( "{$fork->description}" );
+                }
+
                 $return = $fork->run();
                 exit($return);
             }
