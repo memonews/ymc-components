@@ -99,9 +99,14 @@ class ymcCurlEncodingDetector
      */
     private function detectByHeader()
     {
-        if ( preg_match( '/Content-Type:.*?charset=([^\s;]+)/i', $this->headers, $matches ) )
+        if ( preg_match_all( '/Content-Type:.*?charset=([^\s;]+)/i', $this->headers, $matches ) )
         {
-            return $matches[1];
+            $charsetMatches = $matches[1];
+
+            // Use the last match in the headers. If there was a redirect, $headers contains
+            // the headers for all requests. The last one should be the one that answered
+            // with the effective body.
+            return array_pop( $charsetMatches );
         } 
         else
         {
