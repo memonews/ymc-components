@@ -126,8 +126,8 @@ class ymcCurlEncodingDetector
 !
 <meta
     [^>]+
-    http-equiv=['"]Content-Type['"]
-    [^>]+
+    http-equiv=['"]?Content-Type
+    [^>]*
 >
 !ix
 REGEX;
