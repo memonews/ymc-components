@@ -12,6 +12,9 @@ class ymcCurlEncodingDetector
     private $headers;
     private $defaultCharset;
 
+    private $detectorResults = array();
+    private $confidences = array();
+
     private $encoding;
 
     /**
@@ -28,6 +31,20 @@ class ymcCurlEncodingDetector
         'googleAdsJs' => 0.4,
         // 'mbDetectEncoding' => 0.2,
     );
+
+    /**
+     * Custom detectors. Looks like 
+     *  array( $name => array( 
+     *      'callback' => $callback,
+     *      'weight' => $weight 
+     *  ) )
+     */
+    private static $customDetectors = array();
+
+    public static function registerDetector( $name, $callback, $weight = 1 )
+    {
+        self::$customDetectors[$name] = array( 'callback' => $callback, 'weight' => $weight );
+    }
 
     /**
      * __construct 
@@ -53,43 +70,55 @@ class ymcCurlEncodingDetector
     {
         if ( !$this->encoding )
         {
-            $confidences = array();
-            $detectorResults = array();
+            $this->confidences = array();
+            $this->detectorResults = array();
+
+            $detectorSpecs = self::$customDetectors;
             foreach ( self::$detectors as $detector => $weight )
             {
-                $detectorMethod = array( $this, 'detectBy'.ucfirst( $detector ) );
-                $detectedEncoding = call_user_func( $detectorMethod );
-                $detectedEncoding = strtoupper( rtrim( $detectedEncoding ) );
-
-                if ( $detectedEncoding )
-                {
-                    if ( !isset( $confidences[$detectedEncoding] ) )
-                    {
-                        $confidences[$detectedEncoding] = 0;
-                    }
-
-                    $confidences[$detectedEncoding] += $weight;
-                    $detectorResults[$detector] = $detectedEncoding;
-                }
-                else 
-                {
-                    $detectorResults[$detector] = false;
-                }
+                $callback = array( $this, 'detectBy'.ucfirst( $detector ) );
+                $detectorSpecs[$detector] = array( 'callback' => $callback, 'weight' => $weight );
             }
 
-            if ( empty( $confidences ) )
+            foreach ( $detectorSpecs as $detector => $detectorSpec )
+            {
+                $this->callDetector( $detector, $detectorSpec['callback'], $detectorSpec['weight'] );
+            }
+
+            if ( empty( $this->confidences ) )
             {
                 $this->encoding = $this->defaultCharset;
             }
             else
             {
-                asort( $confidences );
-                $keys = array_keys( $confidences );
+                asort( $this->confidences );
+                $keys = array_keys( $this->confidences );
                 $this->encoding = array_pop( $keys );
             }
         }
 
         return $this->encoding;
+    }
+
+    private function callDetector( $name, $callback, $weight )
+    {
+            $detectedEncoding = call_user_func( $callback, $this->headers, $this->html );
+            $detectedEncoding = strtoupper( rtrim( $detectedEncoding ) );
+
+            if ( $detectedEncoding )
+            {
+                if ( !isset( $this->confidences[$detectedEncoding] ) )
+                {
+                    $this->confidences[$detectedEncoding] = 0;
+                }
+
+                $this->confidences[$detectedEncoding] += $weight;
+                $this->detectorResults[$name] = $detectedEncoding;
+            }
+            else 
+            {
+                $this->detectorResults[$name] = false;
+            }
     }
 
     /**
