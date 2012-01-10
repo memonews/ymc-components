@@ -3,10 +3,10 @@
 /**
  * Attempts to detect the encoding
  * 
- * @package Base
+ * @package Curl
  * @author  Jiayong Ou
  */
-class ymcCurlEncodingDetector
+class ymcCurlDefaultEncodingDetector implements ymcCurlEncodingDetector
 {
     private $html;
     private $headers;

@@ -23,6 +23,41 @@ class ymcCurlResponse implements Serializable
      */
     private $encodingDetector;
 
+    /**
+     * @var ymcCurlEncodingDetectorFactory
+     */
+    private static $encodingDetectorFactory;
+
+    public static function getEncodingDetectorFactory()
+    {
+        if( !self::$encodingDetectorFactory )
+        {
+            self::$encodingDetectorFactory = new ymcCurlDefaultEncodingDetectorFactory();
+        }
+
+        return self::$encodingDetectorFactory;
+    }
+    
+    public static function setEncodingDetectorFactory( ymcCurlEncodingDetectorFactory $factory )
+    {
+        self::$encodingDetectorFactory = $factory;
+    }
+
+    /**
+     * Set encodingDetectorFactory to null and return current factory.
+     *
+     * Useful for e.g. temporarily disable custom detectors
+     *
+     * @return ymcCurlEncodingDetectorFactory
+     */
+    public static function resetEncodingDetectorFactory()
+    {
+        $currentFactory = self::$encodingDetectorFactory;
+        self::$encodingDetectorFactory = null;
+        return $currentFactory;
+    }
+    
+
     public function serialize()
     {
         return serialize( $this->properties );
@@ -81,7 +116,8 @@ class ymcCurlResponse implements Serializable
     {
         if ( !$this->encodingDetector )
         {
-            $this->encodingDetector = new ymcCurlEncodingDetector( $this->body, $this->header );
+            $factory = self::getEncodingDetectorFactory();
+            $this->encodingDetector = $factory->createDetector( $this->body, $this->header );
         }
 
         return $this->encodingDetector->getEncoding();
