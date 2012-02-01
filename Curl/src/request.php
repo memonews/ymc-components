@@ -215,14 +215,7 @@ class ymcCurlRequest
 
         if( CURLE_OK === ( $errNo = curl_errno( $ch ) ) ) return;
 
-        throw new Exception( 
-            sprintf(  
-                'Curl error %d. %s %s',
-                $errNo,
-                ( NULL !== $this->url ? $this->url : '' ),
-                curl_error( $ch )
-            )
-        );
+        throw new ymcCurlErrorException( $errNo, curl_error( $ch ), $this->url );
     }
 
     public function __get( $name )
