@@ -4,7 +4,7 @@
  * Wrapper around /proc/meminfo.
  * 
  */
-class ymcLongLiveMeminfo
+class ymcLongLiveMemoryInfoMeminfo extends ymcLongLiveMemoryInfo
 {
     /**
      * filename to parse, defaults to /proc/meminfo
@@ -70,7 +70,7 @@ class ymcLongLiveMeminfo
     }
 
     /**
-     * Returns the amount of RAM available to applications.
+     * Returns the amount of RAM available to applications in kB.
      *
      * The amount is higher then the free memory, since Linux uses free RAM for IO caching, but
      * makes it available on application request.

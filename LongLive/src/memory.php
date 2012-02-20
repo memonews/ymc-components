@@ -68,8 +68,7 @@ class ymcLongLiveMemory
      */
     public static function ensureFreeMemory( $bytes )
     {
-        $memInfo = new ymcLongLiveMeminfo;
-
+        $memInfo = ymcLongLiveMemoryInfo::createInstance();
         return ( $memInfo->getApplicationFreeMemory() * 1024 ) > ( integer )$bytes;
     }
 }
