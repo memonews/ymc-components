@@ -32,16 +32,7 @@ class ymcPipeLoadUrlNode extends ymcPipeNode
             $this->activateOutNodes( $execution );
             return TRUE; // DONE.
         }
-
-        // only for legacy
-        $response = $execution->api->receiveHttp( $this->variables['url'] );
-        if( $response )
-        {
-            $this->setOutput( $response );
-            $this->addResponseIdToExecution( $execution, $response->_id );
-            $this->activateOutNodes( $execution );
-            return true;
-        }
+        
         throw new Exception( 'I should have a response!' );
     }
 
