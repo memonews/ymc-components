@@ -124,6 +124,7 @@ class ymcLongLiveForkRunner
         self::log( sprintf( 'Propagate Signal %d.', $signal ), ezcLog::INFO );
         foreach( $this->children as $pid => $fork )
         {
+            self::log( sprintf( 'Propagate Signal %d to %d (%s).', $signal, $pid, $fork->description ), ezcLog::DEBUG );
             posix_kill( $pid, $signal );
         }
     }
