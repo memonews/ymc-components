@@ -202,6 +202,23 @@ class ymcLongLiveForkRunner
 
                     case -1:
                         self::log( sprintf( 'Got -1 when checking pid %d', $pid ), ezcLog::ERROR );
+
+                        $fork->setStop();
+                        unset( $this->children[$pid] );
+
+                        $msg = "disappeared";
+                        if( posix_kill( $pid, 0 ) )
+                        {
+                            $msg = "failed to check status";
+                        }
+
+                        self::log( sprintf(
+                            'Child %d, %s %s after running (probably) %d seconds.',
+                            $pid,
+                            $fork->description,
+                            $msg,
+                            $fork->getDurationSeconds()
+                        ), ezcLog::INFO );
                     break;
 
                     case 0:
