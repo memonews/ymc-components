@@ -98,15 +98,18 @@ class ymcLongLiveSignalHandler
     }
 
     /**
-     * Wrapper around PHP's exit statement to be registered as callback.
+     * Restore system default SIGTERM handler and send itself a SIGTERM so the
+     * process can be properly killed.
      *
-     * This method is here only as a convenience. Feel free to ignore it.
-     * 
-     * @param integer $signal 
+     * @param integer $signal placeholder argument so it can be used as signal handler directly
      */
     public static function halt( $signal )
     {
         ezcLog::getInstance()->log( 'halt in signal handler', ezcLog::DEBUG );
-        exit();
+
+        // Restore SIGTERM handler
+        pcntl_signal( SIGTERM, SIG_DFL );
+        // Commit suicide
+        posix_kill( posix_getpid(), SIGTERM );
     }
 }
