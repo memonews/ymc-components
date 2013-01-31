@@ -238,6 +238,14 @@ class ymcLongLiveBatchRunner
             }
         }
 
+        if( $callback instanceof Closure ) {
+            return '(anonymous function)';
+        }
+
+        if( method_exists( $callback, '__invoke' ) ) {
+            return get_class( $callback ).'->__invoke';
+        }
+
         return 'not a callback';
     }
 
