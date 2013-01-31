@@ -110,7 +110,7 @@ class ymcLongLiveBatchRunner
                     return FALSE;
                 }
                 self::log( sprintf( 'sleep %d seconds', ( int )$this->options->sleep ), ezcLog::DEBUG );
-                sleep( ( int )$this->options->sleep );
+                call_user_func( $this->options->sleepFunction, ( int )$this->options->sleep );
             }
             //self::log( 'End batch loop', ezcLog::DEBUG );
         }
@@ -199,7 +199,7 @@ class ymcLongLiveBatchRunner
                                 $this->callbackString,
                                 $timeToSleep,
                                 $this->options->minExecutionTime ), ezcLog::DEBUG );
-            sleep( $timeToSleep );
+            call_user_func( $this->options->sleepFunction, $timeToSleep );
         }
     }
 

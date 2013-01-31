@@ -17,7 +17,8 @@ class ymcLongLiveBatchRunnerOptions extends ezcBaseOptions
         'memoryLimit'         => 0,
         'relativeMemoryLimit' => 0.2,
         'gracefulSigterm'     => TRUE,
-        'freeSystemMemory'    => 104857600 // 100MB
+        'freeSystemMemory'    => 104857600, // 100MB
+        'sleepFunction'       => 'sleep',
     );
 
     /**
@@ -64,6 +65,7 @@ class ymcLongLiveBatchRunnerOptions extends ezcBaseOptions
                 }
             break;
             case 'callback':
+            case 'sleepFunction':
                 if( !is_callable( $value ) )
                 {
                     throw new ezcBaseValueException( $name, $value, 'callback' );
