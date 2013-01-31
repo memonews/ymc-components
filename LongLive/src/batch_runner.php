@@ -120,7 +120,11 @@ class ymcLongLiveBatchRunner
     {
         $this->startTime = time();
 
-        if( !is_callable( $callback ) )
+        if( is_callable( $callback ) )
+        {
+            $this->callback = $callback;
+        }
+        else
         {
             $this->callback = $this->options->callback;
             if( !is_callable( $this->callback ) )
