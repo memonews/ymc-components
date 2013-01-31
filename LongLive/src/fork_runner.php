@@ -201,7 +201,8 @@ class ymcLongLiveForkRunner
                     break;
 
                     case -1:
-                        self::log( sprintf( 'Got -1 when checking pid %d', $pid ), ezcLog::ERROR );
+                        $errno = posix_get_last_error();
+                        self::log( sprintf( 'Got -1 when checking pid %d (%d: %s)', $pid, $errno, posix_strerror( $errno ) ), ezcLog::ERROR );
 
                         $fork->setStop();
                         unset( $this->children[$pid] );
