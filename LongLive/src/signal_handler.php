@@ -88,6 +88,11 @@ class ymcLongLiveSignalHandler
         ezcLog::getInstance()->log( 'Dispatching signal '.$signal, ezcLog::DEBUG );
         foreach( self::$callbacks[$signal] as $callback )
         {
+            ezcLog::getInstance()->log( sprintf( 
+                'Calling handler %s for signal %d',
+                ymcLongLiveBatchRunner::callbackToString($callback), $signal
+            ), ezcLog::DEBUG );
+            
             call_user_func( $callback, $signal );
         }
     }
