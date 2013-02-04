@@ -90,6 +90,11 @@ class ymcLongLiveForkRunner
      */
     public function fork( ymcLongLiveFork $fork, $snooze = 0 )
     {
+        if( is_callable( $this->options->beforeForkCallback ) )
+        {
+            call_user_func( $this->options->beforeForkCallback, $fork );
+        }
+
         $fork->setStart();
         $pid = pcntl_fork();
         if( $pid === -1 )
@@ -100,16 +105,21 @@ class ymcLongLiveForkRunner
         {
             if( $pid === 0 )
             {
+                if( function_exists( 'setproctitle' ) )
+                {
+                    setproctitle( "{$fork->description}" );
+                }
+
+                if( is_callable( $this->options->afterForkCallback ) )
+                {
+                    call_user_func( $this->options->afterForkCallback, $fork );
+                }
+
                 //child
                 //self::log( sprintf( 'In new child' ), ezcLog::INFO );
                 if( $snooze > 0 )
                 {
                     sleep( $snooze );
-                }
-
-                if( function_exists( 'setproctitle' ) )
-                {
-                    setproctitle( "{$fork->description}" );
                 }
 
                 $return = $fork->run();
