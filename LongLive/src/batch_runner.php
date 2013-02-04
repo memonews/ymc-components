@@ -100,6 +100,11 @@ class ymcLongLiveBatchRunner
             }
             ++$this->numberOfPerformedJobs;
             self::log( sprintf( 'Function %s returned %s', $this->callbackString, $return ? 'TRUE' : 'FALSE' ), ezcLog::DEBUG );
+            
+            if( $this->options->gracefulSigterm )
+            {
+                ymcLongLiveSignalHandler::dispatchAll();
+            }
 
             //@todo allow other break conditions
             if( !$return )
