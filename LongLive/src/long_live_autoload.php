@@ -4,6 +4,7 @@ return array (
   'ymcLongLiveBatchRunnerOptions' => './LongLive/src/batch_runner_options.php',
   'ymcLongLiveFork' => './LongLive/src/fork.php',
   'ymcLongLiveForkRunner' => './LongLive/src/fork_runner.php',
+  'ymcLongLiveForkRunnerOptions' => './LongLive/src/fork_runner_options.php',
   'ymcLongLiveMemoryInfo' => './LongLive/src/interfaces/memory_info.php',
   'ymcLongLiveMemory' => './LongLive/src/memory.php',
   'ymcLongLiveMemoryInfoDarwinVmStat' => './LongLive/src/memory_info/darwin_vm_stat.php',

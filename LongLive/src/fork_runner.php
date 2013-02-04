@@ -7,6 +7,8 @@ class ymcLongLiveForkRunner
      */
     private static $instance;
 
+    private $options;
+
     /**
      * All processes forked by this runner.
      *
@@ -31,17 +33,34 @@ class ymcLongLiveForkRunner
     protected $scheduledSigkill = NULL;
 
     /**
-    * Port to listen for status requests.
-    *
-    * @var integer
-    */
-    protected $statusPort = 5678;
+     * The callback that is executed right after forking, before the acutal
+     * fork callback is called.
+     *
+     * @var callback
+     */
+    protected $afterForkCallback;
 
-    public function __construct($statusPort=null)
+    protected $statusServer;
+
+    public function __construct( $statusPortOrOptions = null )
     {
-        if($statusPort!=null)
+        if( $statusPortOrOptions === null )
         {
-            $this->statusPort = $statusPort;
+            $this->options = new ymcLongLiveForkRunnerOptions();
+        }
+        elseif( is_numeric( $statusPortOrOptions ) )
+        {
+            $this->options = new ymcLongLiveForkRunnerOptions( array(
+                'statusPort' => $statusPortOrOptions,
+            ) );
+        }
+        elseif( $statusPortOrOptions instanceof ymcLongLiveForkRunnerOptions )
+        {
+            $this->options = $statusPortOrOptions;
+        }
+        else
+        {
+            $this->options = new ymcLongLiveForkRunnerOptions( $statusPortOrOptions );
         }
     }
 
@@ -136,6 +155,12 @@ class ymcLongLiveForkRunner
      */
     public function supervise( $ticker = NULL, $respawnChecker = NULL )
     {
+        if( $this->options->processTitle && function_exists( 'setproctitle' ) )
+        {
+            $statusServer = $this->getStatusServer();
+            setproctitle( "{$this->options->processTitle} [StatusPort: {$statusServer->port}]" );
+        }
+
         // loop and monitor children
         while( !empty( $this->children ) )
         {
@@ -246,17 +271,23 @@ class ymcLongLiveForkRunner
         self::log( 'Leaving fork runner supervise function', ezcLog::DEBUG );
     }
 
+    protected function getStatusServer()
+    {
+        if( !$this->statusServer )
+        {
+            $this->statusServer = new ymcLongLiveSimpleServer( $this->options->statusPort );
+        }
+        return $this->statusServer;
+    }
+
     /**
      * having this method here in the fork runner is an ugly hack.
      *
      */
     protected function runServer()
     {
-        static $server;
-        if( !$server )
-        {
-            $server = new ymcLongLiveSimpleServer( $this->statusPort );
-        }
+        $server = $this->getStatusServer();
+
         $line = $server->getLine( 5 );
         if( !$line )
         {
