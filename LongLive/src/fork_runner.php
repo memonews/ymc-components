@@ -134,10 +134,16 @@ class ymcLongLiveForkRunner
         }
     }
 
-    public function shutdown( $signal )
+    public function shutdown( $signal = null )
     {
         $this->propagateSignal( SIGTERM );
         $this->scheduledSigkill = new DateTime( '+2 minutes' );
+    }
+
+    public function terminate( $signal = null )
+    {
+        self::log( sprintf( 'Termination initiated from signal %d, sending SIGKILL to all children', $signal ), ezcLog::INFO );
+        $this->propagateSignal( SIGKILL );
     }
 
     /**
