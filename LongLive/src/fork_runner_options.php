@@ -13,6 +13,7 @@ class ymcLongLiveForkRunnerOptions extends ezcBaseOptions
         'afterForkCallback' => null,
         'statusPort' => 39311,
         'processTitle' => null,
+        'respawnSnoozeTime' => 0,
     );
 
     /**
@@ -36,6 +37,7 @@ class ymcLongLiveForkRunnerOptions extends ezcBaseOptions
         switch( $name )
         {
             case 'statusPort':
+            case 'respawnSnoozeTime':
                 if( !is_int( $value ) )
                 {
                     throw new ezcBaseValueException( $name, $value, 'integer' );

@@ -218,7 +218,7 @@ class ymcLongLiveForkRunner
                                   if( $respawn )
                                   {
                                       self::log( 'refork '.$fork->description, ezcLog::INFO );
-                                      $this->fork( $fork );
+                                      $this->fork( $fork, $this->options->respawnSnoozeTime );
                                   }
                             break;
 
