@@ -1,12 +1,22 @@
 <?php
 
+/**
+ * Runs multiple requests in parallel
+ *
+ * @property-read ymcCurlRequest[] $requests
+ * @property int $concurrentRequestCount How many requests to run concurrently at most
+ */
 class ymcCurlMultiHandle
 {
     protected $requests = array();
 
     protected $multiHandle;
 
+    /** @var ymcCurlRequest[] */
     protected $curlHandles = array();
+
+    private $pendingHandles = array();
+    protected $concurrentRequestCount = 5;
 
     public function addRequest( ymcCurlRequest $request )
     {
@@ -44,10 +54,10 @@ class ymcCurlMultiHandle
 
         foreach( $requests as $key => $request )
         {
+            /** @var ymcCurlRequest $request */
             $ch = $request->getHandle();
 
             $this->curlHandles[$key] = $ch;
-            curl_multi_add_handle( $mh, $ch );
         }
         return $mh;
     }
@@ -58,6 +68,15 @@ class ymcCurlMultiHandle
         if( !($mh = $this->initMultiHandle() ) )
         {
             return false;
+        }
+
+        $this->pendingHandles = $this->curlHandles;
+        $concurrentRequestCount = min(count($this->pendingHandles), $this->concurrentRequestCount);
+
+        // Add first batch of requests to the multi handle
+        for ($i = 0; $i < $concurrentRequestCount; $i++) {
+            $handle = array_shift($this->pendingHandles);
+            curl_multi_add_handle($mh, $handle);
         }
 
         $active = 0;
@@ -83,7 +102,7 @@ class ymcCurlMultiHandle
             // Did sth. happen? Did a handle finish?
             $moreMessages = 0;
             do{
-                $this->handleMultiMessage( curl_multi_info_read( $mh, $moreMessages ) );
+                $this->handleMultiMessage($mh, curl_multi_info_read($mh, $moreMessages));
             } while( $moreMessages );
             
 
@@ -129,15 +148,25 @@ class ymcCurlMultiHandle
      * @access protected
      * @return void
      */
-    protected function handleMultiMessage( $message )
+    protected function handleMultiMessage( $mh, $message )
     {
         if( !is_array( $message ) ) return;
+        // A message we can't handle yet, bail out
+        if( $message["msg"] !== CURLMSG_DONE ) return;
 
-        $handle    = $message['handle'];
-        $handleKey = array_search( $handle, $this->curlHandles, TRUE );
-        $request   = $this->requests[$handleKey];
+        $finishedHandle = $message['handle'];
+        $handleKey      = array_search( $finishedHandle, $this->curlHandles, TRUE );
+        $request        = $this->requests[$handleKey];
 
         $request->onCompletion();
+
+        // start next request if there is one
+        $nextHandle = array_shift($this->pendingHandles);
+        if( $nextHandle !== null )
+        {
+            curl_multi_add_handle($mh, $nextHandle);
+        }
+        curl_multi_remove_handle($mh, $finishedHandle);
     }
 
     public function __get( $name )
@@ -145,9 +174,23 @@ class ymcCurlMultiHandle
         switch( $name )
         {
             case 'requests':
+            case 'concurrentRequestCount':
                 return $this->$name;
         }
-        throw new Exception( 'Unknown property '.$name );
+        throw new ezcBasePropertyNotFoundException($name);
     }
 
+    public function __set( $name, $value )
+    {
+        switch( $name )
+        {
+            case 'requests':
+                throw new ezcBasePropertyPermissionException($name, ezcBasePropertyPermissionException::READ);
+            case 'concurrentRequestCount':
+                $this->$name = $value;
+                return;
+        }
+
+        throw new ezcBasePropertyNotFoundException($name);
+    }
 }
