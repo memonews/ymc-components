@@ -34,7 +34,11 @@ class ymcCurlRequest
         CURLOPT_LOW_SPEED_TIME => 120, //The number of seconds the transfer should be below CURLOPT_LOW_SPEED_LIMIT for PHP to consider the transfer too slow and abort. 
         CURLOPT_MAXCONNECTS => 20, //The maximum amount of persistent connections that are allowed. When the limit is reached, CURLOPT_CLOSEPOLICY is used to determine which connection to close. 
         CURLOPT_MAXREDIRS => 5, //The maximum amount of HTTP redirections to follow. Use this option alongside CURLOPT_FOLLOWLOCATION. 
-        CURLOPT_TIMEOUT => 360, //The maximum number of seconds to allow cURL functions to execute. 
+        CURLOPT_TIMEOUT => 360, //The maximum number of seconds to allow cURL functions to execute.
+
+        CURLOPT_CUSTOMREQUEST => null,
+        CURLOPT_POSTFIELDS => null,
+        CURLOPT_HTTPHEADER => array(),
 
         // value should be a string for the following values of the option parameter:
         CURLOPT_USERAGENT => 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.3) Gecko/2008092814 Iceweasel/3.0.3 (Debian-3.0.3-3)', //The contents of the "User-Agent: " header to be used in a HTTP request. 
@@ -61,6 +65,13 @@ class ymcCurlRequest
         'maxSize' => NULL
     );
 
+    /**
+     * cURL options that has been set so far
+     *
+     * @var array
+     */
+    private $currentCurlOptions = array();
+
     public function __construct( $url, $options = array() )
     {
         $this->url = $url;
@@ -73,6 +84,24 @@ class ymcCurlRequest
             }
             $this->options[$option] = $value;
         }
+    }
+
+    /**
+     * Makes the request a POST request and set the request body
+     *
+     * @param $body
+     * @param $contentType
+     */
+    public function setPostData( $body, $contentType )
+    {
+        $this->setOption(CURLOPT_CUSTOMREQUEST, "POST");
+        $this->setOption(CURLOPT_POSTFIELDS, $body);
+
+        $currentHeaders = $this->currentCurlOptions[CURLOPT_HTTPHEADER] ?: array();
+        $this->setOption(CURLOPT_HTTPHEADER, array_merge($currentHeaders, array(
+            'Content-Type: ' . $contentType,
+            'Content-Length: ' . strlen($body),
+        )));
     }
 
     public function __destruct(  )
@@ -177,7 +206,11 @@ class ymcCurlRequest
 
     protected function setOptionInternal( $option, $value, $ch )
     {
-        if( curl_setopt( $ch, $option, $value ) ) return;
+        if( curl_setopt( $ch, $option, $value ) )
+        {
+            $this->currentCurlOptions[$option] = $value;
+            return;
+        }
         $this->checkForError( $ch );
 
         // sth. went wrong
