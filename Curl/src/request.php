@@ -257,6 +257,8 @@ class ymcCurlRequest
         {
             case 'curlInfo':
                 return $this->$name;
+            case 'requestBody':
+                return $this->currentCurlOptions[CURLOPT_POSTFIELDS];
         }
     }
     
