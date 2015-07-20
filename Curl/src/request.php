@@ -36,10 +36,6 @@ class ymcCurlRequest
         CURLOPT_MAXREDIRS => 5, //The maximum amount of HTTP redirections to follow. Use this option alongside CURLOPT_FOLLOWLOCATION. 
         CURLOPT_TIMEOUT => 360, //The maximum number of seconds to allow cURL functions to execute.
 
-        CURLOPT_CUSTOMREQUEST => null,
-        CURLOPT_POSTFIELDS => null,
-        CURLOPT_HTTPHEADER => array(),
-
         // value should be a string for the following values of the option parameter:
         CURLOPT_USERAGENT => 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.3) Gecko/2008092814 Iceweasel/3.0.3 (Debian-3.0.3-3)', //The contents of the "User-Agent: " header to be used in a HTTP request. 
     );
@@ -97,7 +93,7 @@ class ymcCurlRequest
         $this->setOption(CURLOPT_CUSTOMREQUEST, "POST");
         $this->setOption(CURLOPT_POSTFIELDS, $body);
 
-        $currentHeaders = $this->currentCurlOptions[CURLOPT_HTTPHEADER] ?: array();
+        $currentHeaders = isset($this->currentCurlOptions[CURLOPT_HTTPHEADER]) ? $this->currentCurlOptions[CURLOPT_HTTPHEADER] : array();
         $this->setOption(CURLOPT_HTTPHEADER, array_merge($currentHeaders, array(
             'Content-Type: ' . $contentType,
             'Content-Length: ' . strlen($body),
